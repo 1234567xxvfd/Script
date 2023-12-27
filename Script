@@ -1,0 +1,48 @@
+local function sendServerHopMessage(serverId)
+    local http = game:GetService("HttpService")
+    local webhookURL = "https://discord.com/api/webhooks/1189709597087379507/KeKJYL9VY2ltQw8QLeLEAdfU8m3C3p_SnIoZS0DpiLoxeseIVPQ4NnPOT8RJPK4bcNsp"
+
+    local serverDetails = {
+        ServerId = serverId,
+        PlayerName = game.Players.LocalPlayer.Name,
+        Timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ") -- UTC timestamp
+    }
+
+    local message = {
+        content = "Server hopped!",
+        username = "TeleportBot",
+        embeds = {{
+            title = "Server Hop Details",
+            description = string.format("Server ID: %s\nPlayer: %s\nTimestamp: %s", serverDetails.ServerId, serverDetails.PlayerName, serverDetails.Timestamp),
+            color = 65280 -- Green color
+        }}
+    }
+
+    local jsonMessage = http:JSONEncode(message)
+
+    http:PostAsync(
+        webhookURL,
+        jsonMessage,
+        Enum.HttpContentType.ApplicationJson,
+        false
+    )
+end
+
+local function serverHopWithRetry()
+    while true do
+        if game.PlaceId ~= 15588442388 then
+            local TPS = game:GetService("TeleportService")
+            local originalPlaceId = game.PlaceId
+            TPS:Teleport(15588442388, game.Players.LocalPlayer)
+            wait(3)
+            
+            sendServerHopMessage(originalPlaceId)
+        else
+            print("Server hop successful!")
+            break 
+        end
+    end
+end
+
+ Infinite server hops
+serverHopWithRetry()
